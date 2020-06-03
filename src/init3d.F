@@ -71,6 +71,9 @@
                         tha,th3d,thten,thten1,qa,q3d,qten,                &
                         kmh,kmv,khh,khv,tkea,tke3d,tketen,                &
                         pta,pt3d,ptten,                                   &
+#ifdef MICROBURST                       
+                        q1mb,q2mb,                                        &
+#endif
                         pdata,cfb,cfa,cfc,ad1,ad2,pdt,lgbth,lgbph,rhs,trans)
 
       use input
@@ -121,6 +124,10 @@
       real, dimension(kpb:kpe) :: cfa,cfc,ad1,ad2
       complex, dimension(ipb:ipe,jpb:jpe,kpb:kpe) :: pdt,lgbth,lgbph
       complex, dimension(ipb:ipe,jpb:jpe) :: rhs,trans
+#ifdef MICROBURST 
+      real, dimension(ib:ie,jb:je,kb:ke) :: q1mb,q2mb
+      integer, dimension(1) :: seed
+#endif
  
 !-----------------------------------------------------------------------
 
@@ -681,6 +688,119 @@
         enddo
         enddo
         enddo
+!------------------------------------------------------------------
+
+
+#ifdef MICROBURST
+!-----------------------------------------------------------------
+!  iinit = 55
+!  ORF microburst. Just sets the cooling function array - forcing
+!  occurs in solve.F
+
+      ELSEIF(iinit.eq.55)THEN
+
+      if(myid.eq.0)then
+        write(outfile,*)
+        write(outfile,*) '  Microburst (elipsoid, following Straka)'
+        write(outfile,*)
+      endif
+
+
+! ORF 2015-10-26
+! For adding randomness to q forcing
+! Seed with mpi rank to ensure different sequences on each rank
+! In solve we will call the random number generator
+! Grabbed this code above
+        !-----------------------------------!
+        !----- don't change this code) -----!
+        ! initialize the random number generator
+        call random_seed(size=k) ! On Stampede, k=2. On my office machine, k=12.
+        k = max(2,k)
+!       if(dowr) write(outfile,*) '  seed_size = ',k
+        allocate( sand(k) )
+        do n=1,k
+!          sand(n) = nint( 2.0e9*(2.0*float(n-1)/float(k-1)-1.0) )
+!ORF we need a different seed (sequence) on every MPI rank
+!And needs to be reproducible, so this is an easy way
+!See solve.F for where the random number generator is actually called.
+           sand(n) = 1000*myid+n
+        enddo
+        call random_seed(put=sand(1:k))
+        call random_number(rand)
+        deallocate( sand )
+        !----- don't change this code) -----!
+        !-----------------------------------!
+!    seed(1) = myid
+!    call random_seed(put=seed)
+
+! ORF microburst recreation w/out time dependant forcing
+! Colliding microbursts by activating both q1 and q2
+
+!q1
+        ric     =  var3 !Refer to namelist
+        rjc     =  var4
+        zc      =  var5
+        bhrad   =  1200.0
+        bvrad   =  1800.0
+        bptpert =  var1 ! K/s not K
+
+        do k=1,nk
+        do j=1,nj
+        do i=1,ni
+        ! 3D
+          beta=sqrt(                             &
+                    ((xh(i)-ric)/bhrad)**2       &
+                   +((yf(j)-rjc)/bhrad)**2       &
+                   +((zh(i,j,k)-zc)/bvrad)**2)
+! 2D
+!         beta=sqrt(                             &
+!                   ((xh(i)-ric)/bhrad)**2       &
+!                  +((zh(i,j,k)-zc)/bvrad)**2)
+          if(beta.lt.1.0)then
+            q1mb(i,j,k)=bptpert*(cos(0.5*pi*beta)**2)
+          else
+            q1mb(i,j,k)=0.0
+          endif
+          tha(i,j,k)=0.0
+        enddo
+        enddo
+        enddo
+
+!q2
+        ric     =  var6 !Refer to namelist
+        rjc     =  var7
+        zc      =  var8
+        bhrad   =  1200.0
+        bvrad   =  1800.0
+        bptpert =  var2 ! K/s not K
+
+        do k=1,nk
+        do j=1,nj
+        do i=1,ni
+        ! 3D
+          beta=sqrt(                             &
+                    ((xh(i)-ric)/bhrad)**2       &
+                   +((yf(j)-rjc)/bhrad)**2       &
+                   +((zh(i,j,k)-zc)/bvrad)**2)
+! 2D
+!         beta=sqrt(                             &
+!                   ((xh(i)-ric)/bhrad)**2       &
+!                  +((zh(i,j,k)-zc)/bvrad)**2)
+          if(beta.lt.1.0)then
+            q2mb(i,j,k)=bptpert*(cos(0.5*pi*beta)**2)
+          else
+            q2mb(i,j,k)=0.0
+          endif
+          tha(i,j,k)=0.0 !redundant
+        enddo
+        enddo
+        enddo
+#endif
+
+
+
+
+
 
 !------------------------------------------------------------------
 !  Analytic tropical cyclone-like vortex
