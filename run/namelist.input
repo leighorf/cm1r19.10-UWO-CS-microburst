@@ -3,8 +3,8 @@
  nx           =      200,
  ny           =      200,
  nz           =      80,
- nodex        =       4,
- nodey        =       2,
+ nodex        =       1,
+ nodey        =       1,
  ppnode       =       8,
  timeformat   =       1,
  timestats    =       1,
@@ -17,7 +17,7 @@
  dy     =  50.0,
  dz     =  50.0,
  dtl    =  1.0,
- timax  =  1400.0,
+ timax  =  700.0,
  run_time =  -999.9,
  tapfrq =   60.0,
  rstfrq = -3600.0,
@@ -66,7 +66,7 @@
  ebc       =  2,
  sbc       =  2,
  nbc       =  2,
- bbc       =  1,
+ bbc       =  3, !ORF
  tbc       =  1,
  irbc      =  4,
  roflux    =  0,
@@ -122,18 +122,18 @@
 
  &param12
  isfcflx    =      0,
- sfcmodel   =      0,
- oceanmodel =      0,
+ sfcmodel   =      1,
+ oceanmodel =      1,
  initsfc    =      1,
  tsk0       = 299.28,
  tmn0       = 297.28,
  xland0     =    2.0,
  lu0        =     16,
  season     =      1,
- cecd       =      3,
+ cecd       =      1, !ORF
  pertflx    =      0,
- cnstce     =  0.001,
- cnstcd     =  0.001,
+ cnstce     =  0.040, !ORF
+ cnstcd     =  0.040, !ORF
  isftcflx   =      0,
  iz0tlnd    =      0,
  oml_hml0   =   50.0,
