@@ -39,7 +39,7 @@ LINKOPTS  = -lnetcdf -lnetcdff
 #      (eg, NCAR's yellowstone/cheyenne)
 FC   = mpif90
 OPTS = -O3 -xHost -ip -assume byterecl -fp-model precise -ftz -no-fma -qopenmp
-CPP  = cpp -C -P -traditional -Wno-invalid-pp-token -ffreestanding
+CPP  = cpp -C -P -traditional -Wno-invalid-pp-token -ffreestanding -DMICROBURST
 #-----------------------------------------------------------------------------
 #  single processor, Portland Group compiler
 #FC   = pgf90
