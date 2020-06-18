@@ -82,7 +82,7 @@
       logical :: allinfo
 
       integer, parameter :: shuffle       = 1
-      integer, parameter :: deflate       = 1
+      integer, parameter :: deflate       = 0 !ORF
       integer, parameter :: deflate_level = 1
 
       integer :: chkx,chky,chkxp1,chkyp1
@@ -381,7 +381,8 @@
         endif
         if( cmpr_output(n) )then
 !!!          if( myid.eq.0 ) print *,'    ... compressing ... '
-          call disp_err( nf90_def_var_deflate(ncid,varid,shuffle,deflate,deflate_level) , .true. )
+!ORF
+if (deflate.ne.0) call disp_err( nf90_def_var_deflate(ncid,varid,shuffle,deflate,deflate_level) , .true. )
         endif
 #endif
       enddo  varloop
