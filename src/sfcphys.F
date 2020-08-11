@@ -122,6 +122,7 @@
     !$omp private(i,j,wlast,n,var,rznt)
     do j=j1,j2
     do i=i1,i2
+!ORF here is where we would change to make cd znt as we did with Chris
       cd(i,j) = max(1.0e-10,cnstcd)
       znt(i,j) = 10.0/(exp(karman/sqrt(cd(i,j)))-1.0)
       rznt = 1.0/znt(i,j)
