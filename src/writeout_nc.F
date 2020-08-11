@@ -70,6 +70,7 @@
       integer :: cdfid    ! ID for the netCDF file to be created
       integer :: status,dimid,varid
       integer :: niid,njid,nkid,nip1id,njp1id,nkp1id,timeid,oneid,tfile,num_write
+      integer :: xhid,yhid,zhid,xfid,yfid,zfid
       character(len=8) chid
 
 !-------------------------------------------------------------
@@ -233,6 +234,27 @@
       call disp_err( nf90_create(path=string,cmode=0,ncid=ncid) , .true. )
 #endif
 
+!ORF set our 1d mesh arrays as our dimensions - this will preserve the mesh for
+!analysis/viz programs that follow this convention (e.g., VAPOR3, VisIt, Paraview)
+!Also include the axis attribute for VAPOR3, setting xh, yh, zh to the X, Y and Z axes.
+!Note, VAPOR will not be able to display staggered data properly, only stuff on the scalar mesh,
+!so display uinterp vinterp winterp etc.!
+
+!      ival = nx
+!      jval = ny
+!      chkx = nx
+!      chky = ny
+!      chkxp1 = nx+1
+!      chkyp1 = ny+1
+
+      call disp_err( nf90_def_dim(ncid,'xh',ival,xhid) , .true. )
+      call disp_err( nf90_def_dim(ncid,'yh',jval,yhid) , .true. )
+      call disp_err( nf90_def_dim(ncid,'zh',kval,zhid) , .true. )
+      call disp_err( nf90_def_dim(ncid,'xf',chkxp1,xfid) , .true. )
+      call disp_err( nf90_def_dim(ncid,'yf',chkyp1,yfid) , .true. )
+      call disp_err( nf90_def_dim(ncid,'zf',kvalp1,zfid) , .true. )
+
+!Leave the original dimensions alone for now
       call disp_err( nf90_def_dim(ncid,'ni',ival,niid) , .true. )
       call disp_err( nf90_def_dim(ncid,'nj',jval,njid) , .true. )
       call disp_err( nf90_def_dim(ncid,'nk',kval,nkid) , .true. )
@@ -289,27 +311,30 @@
       call disp_err( nf90_put_att(ncid,varid,"long_name","time since beginning of simulation") , .true. )
       call disp_err( nf90_put_att(ncid,varid,"units","seconds") , .true. )
 
-      call disp_err( nf90_def_var(ncid,"xh",nf90_float,niid,varid) , .true. )
+      call disp_err( nf90_def_var(ncid,"xh",nf90_float,xhid,varid) , .true. )
       call disp_err( nf90_put_att(ncid,varid,"long_name","west-east location of scalar grid points") , .true. )
       call disp_err( nf90_put_att(ncid,varid,"units","km") , .true. )
+      call disp_err( nf90_put_att(ncid,varid,"axis","X") , .true. )
 
-      call disp_err( nf90_def_var(ncid,"xf",nf90_float,nip1id,varid) , .true. )
+      call disp_err( nf90_def_var(ncid,"xf",nf90_float,xfid,varid) , .true. )
       call disp_err( nf90_put_att(ncid,varid,"long_name","west-east location of staggered u grid points") , .true. )
       call disp_err( nf90_put_att(ncid,varid,"units","km") , .true. )
 
-      call disp_err( nf90_def_var(ncid,"yh",nf90_float,njid,varid) , .true. )
+      call disp_err( nf90_def_var(ncid,"yh",nf90_float,yhid,varid) , .true. )
       call disp_err( nf90_put_att(ncid,varid,"long_name","south-north location of scalar grid points") , .true. )
       call disp_err( nf90_put_att(ncid,varid,"units","km") , .true. )
+      call disp_err( nf90_put_att(ncid,varid,"axis","Y") , .true. )
 
-      call disp_err( nf90_def_var(ncid,"yf",nf90_float,njp1id,varid) , .true. )
+      call disp_err( nf90_def_var(ncid,"yf",nf90_float,yfid,varid) , .true. )
       call disp_err( nf90_put_att(ncid,varid,"long_name","south-north location of staggered v grid points") , .true. )
       call disp_err( nf90_put_att(ncid,varid,"units","km") , .true. )
 
-      call disp_err( nf90_def_var(ncid,"z",nf90_float,nkid,varid) , .true. )
+      call disp_err( nf90_def_var(ncid,"zh",nf90_float,zhid,varid) , .true. ) !ORF make zh
       call disp_err( nf90_put_att(ncid,varid,"long_name","nominal height of scalar grid points") , .true. )
       call disp_err( nf90_put_att(ncid,varid,"units","km") , .true. )
+      call disp_err( nf90_put_att(ncid,varid,"axis","Z") , .true. )
 
-      call disp_err( nf90_def_var(ncid,"zf",nf90_float,nkp1id,varid) , .true. )
+      call disp_err( nf90_def_var(ncid,"zf",nf90_float,zfid,varid) , .true. )
       call disp_err( nf90_put_att(ncid,varid,"long_name","nominal height of staggered w grid points") , .true. )
       call disp_err( nf90_put_att(ncid,varid,"units","km") , .true. )
 
@@ -325,6 +350,12 @@
         call disp_err( nf90_inq_dimid(ncid,'nip1',nip1id) , .true. )
         call disp_err( nf90_inq_dimid(ncid,'njp1',njp1id) , .true. )
         call disp_err( nf90_inq_dimid(ncid,'nkp1',nkp1id) , .true. )
+        call disp_err( nf90_inq_dimid(ncid,'xh',xhid) , .true. )
+        call disp_err( nf90_inq_dimid(ncid,'yh',yhid) , .true. )
+        call disp_err( nf90_inq_dimid(ncid,'zh',zhid) , .true. )
+        call disp_err( nf90_inq_dimid(ncid,'xf',xfid) , .true. )
+        call disp_err( nf90_inq_dimid(ncid,'yf',yfid) , .true. )
+        call disp_err( nf90_inq_dimid(ncid,'zf',zfid) , .true. )
 
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !--- 2D and 3D vars:
@@ -337,15 +368,20 @@
       do n = 1,n_out
 !!!        if( myid.eq.0 ) print *,'  n = ',n,trim(name_output(n))
         if(     grid_output(n).eq.'s' )then
-          call disp_err( nf90_def_var(ncid,trim(name_output(n)),nf90_float,(/niid,njid,nkid,timeid/),varid) , .true. )
+!ORF keep original calls for reference
+!         call disp_err( nf90_def_var(ncid,trim(name_output(n)),nf90_float,(/niid,njid,nkid,timeid/),varid) , .true. )
+          call disp_err( nf90_def_var(ncid,trim(name_output(n)),nf90_float,(/xhid,yhid,zhid,timeid/),varid) , .true. )
         elseif( grid_output(n).eq.'u' .and. fnum.eq.51 )then
-          call disp_err( nf90_def_var(ncid,trim(name_output(n)),nf90_float,(/nip1id,njid,nkid,timeid/),varid) , .true. )
+!         call disp_err( nf90_def_var(ncid,trim(name_output(n)),nf90_float,(/nip1id,njid,nkid,timeid/),varid) , .true. )
+          call disp_err( nf90_def_var(ncid,trim(name_output(n)),nf90_float,(/xfid,yhid,zhid,timeid/),varid) , .true. )
         elseif( grid_output(n).eq.'v' .and. fnum.eq.51 )then
-          call disp_err( nf90_def_var(ncid,trim(name_output(n)),nf90_float,(/niid,njp1id,nkid,timeid/),varid) , .true. )
+!         call disp_err( nf90_def_var(ncid,trim(name_output(n)),nf90_float,(/niid,njp1id,nkid,timeid/),varid) , .true. )
+          call disp_err( nf90_def_var(ncid,trim(name_output(n)),nf90_float,(/xhid,yfid,zhid,timeid/),varid) , .true. )
         elseif( grid_output(n).eq.'w' .and. fnum.eq.51 )then
-          call disp_err( nf90_def_var(ncid,trim(name_output(n)),nf90_float,(/niid,njid,nkp1id,timeid/),varid) , .true. )
+!         call disp_err( nf90_def_var(ncid,trim(name_output(n)),nf90_float,(/niid,njid,nkp1id,timeid/),varid) , .true. )
+          call disp_err( nf90_def_var(ncid,trim(name_output(n)),nf90_float,(/xhid,yhid,zfid,timeid/),varid) , .true. )
         elseif( grid_output(n).eq.'2' )then
-          call disp_err( nf90_def_var(ncid,trim(name_output(n)),nf90_float,(/niid,njid,timeid/),varid) , .true. )
+          call disp_err( nf90_def_var(ncid,trim(name_output(n)),nf90_float,(/xhid,yhid,timeid/),varid) , .true. )
         else
           IF( fnum.eq.71 .and. ( grid_output(n).eq.'u' .or. grid_output(n).eq.'v' .or. grid_output(n).eq.'w' ) )THEN
             ! no error for u,v,w with fnum=71
@@ -560,7 +596,7 @@
       if(coards)then
         call disp_err( nf90_inq_varid(ncid,'nk',varid) , .true. )
       else
-        call disp_err( nf90_inq_varid(ncid,'z',varid) , .true. )
+        call disp_err( nf90_inq_varid(ncid,'zh',varid) , .true. )!ORF
       endif
       if(terrain_flag)then
         do k=1,kval

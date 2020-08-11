@@ -32,10 +32,10 @@
  irst      =  0,
  rstnum    =  1,
  iconly    =  0,
- hadvordrs =  5,
- vadvordrs =  5,
- hadvordrv =  5,
- vadvordrv =  5,
+ hadvordrs =  7,
+ vadvordrs =  7,
+ hadvordrv =  7,
+ vadvordrv =  7,
  advwenos  =  2,
  advwenov  =  0,
  weno_order = 5,
@@ -89,7 +89,7 @@
 
  &param3
  kdiff2  =   75.0,
- kdiff6  =   0.040,
+ kdiff6  =   0.200,
  fcor    = 0.00005,
  kdiv    = 0.10,
  alph    = 0.60,
