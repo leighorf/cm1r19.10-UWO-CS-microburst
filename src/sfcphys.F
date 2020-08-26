@@ -123,8 +123,9 @@
     do j=j1,j2
     do i=i1,i2
 !ORF here is where we would change to make cd znt as we did with Chris
-      cd(i,j) = max(1.0e-10,cnstcd)
-      znt(i,j) = 10.0/(exp(karman/sqrt(cd(i,j)))-1.0)
+!     cd(i,j) = max(1.0e-10,cnstcd)
+!     znt(i,j) = 10.0/(exp(karman/sqrt(cd(i,j)))-1.0)
+      znt(i,j) = 0.01 * cnstcd !cnstcd is really z0 in cm!
       rznt = 1.0/znt(i,j)
       var = alog((10.0+znt(i,j))*rznt)/alog((za(i,j)+znt(i,j))*rznt)
       u10(i,j) = u1(i,j)*var
@@ -178,8 +179,6 @@
       ELSE
         !-----------------------------------------
         ! land:  roughness length (z0) is specified ... no need to iterate
-        ! ORF 2016-12-02 just have it read in roughness length directly for EGR study
-        znt(i,j) = 0.01 * cnstcd !cnstcd is really z0 in cm!
         rznt = 1.0/znt(i,j)
         cd(i,j) = ( karman/alog((10.0+znt(i,j))*rznt) )**2
         var = alog((10.0+znt(i,j))*rznt)/alog((za(i,j)+znt(i,j))*rznt)
