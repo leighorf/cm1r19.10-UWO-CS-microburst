@@ -189,7 +189,7 @@
  var6      =   0.0, !ric 2
  var7      =   0.0, !rjc 2
  var8      =   0.0, !zc  2
- var9      =   0.0,
+ var9      =   9.8, !lapse rate for isnd.eq.3 IN DEG C PER KM
  var10     =   0.0,
  /
 

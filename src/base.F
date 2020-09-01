@@ -217,7 +217,8 @@
 
         th_sfc   =  300.0     ! theta at surface (K)
         prs_sfc  =  p00       ! pressure at surface (Pa)
-        lapse    =  0.0065    ! dT/dz (K m^-1)
+!       lapse    =  0.0065    ! dT/dz (K m^-1)
+        lapse = 0.001 * var9  ! var9 is lapse rate in degC / km
 
         do k=kb,ke
         do j=jb,je
