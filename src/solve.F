@@ -1140,7 +1140,9 @@
         call random_number(frand)
         thrand = var9 * (frand - 0.5) !random perturbations, var9 is amplitude
         ! Only q1mb contains perturbations here
-        thten1(i,j,k)=thten1(i,j,k) + q1forc * q1mb(i,j,k) * (1.0 + thrand) + q2forc * q2mb(i,j,k)
+! ORF  2020-08-21 turn this off for now! var9 is used for something else!
+!       thten1(i,j,k)=thten1(i,j,k) + q1forc * q1mb(i,j,k) * (1.0 + thrand) + q2forc * q2mb(i,j,k)
+        thten1(i,j,k)=thten1(i,j,k) + q1forc * q1mb(i,j,k) + q2forc * q2mb(i,j,k)
       enddo
       enddo
       enddo
